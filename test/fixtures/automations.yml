@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  company: one
+  tipo: MyString
+  message: MyString
+  programmed_to: 2024-08-17 14:24:19
+  sent_at: 2024-08-17 14:24:19
+
+two:
+  company: two
+  tipo: MyString
+  message: MyString
+  programmed_to: 2024-08-17 14:24:19
+  sent_at: 2024-08-17 14:24:19

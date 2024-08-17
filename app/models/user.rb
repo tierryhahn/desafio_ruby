@@ -10,8 +10,8 @@ class User
   field :unipile_email_account_id, type: String
   field :unipile_linkedin_account_id, type: String
   field :otp_secret, type: String
+  field :otp_token, type: String
   field :encrypted_password, type: String
-
 
   validates :email, presence: true
   validates :password, presence: true
@@ -27,11 +27,10 @@ class User
   end
 
   def generate_otp_token
-    otp.now
+    self.otp_token = otp.now
   end
 
   def verify_otp(token)
-    otp = ROTP::TOTP.new(otp_secret)
     otp.verify(token)
   end  
 end

@@ -6,6 +6,8 @@ gem 'devise', '~> 4.8'
 gem 'rotp', '~> 2.0'
 gem 'bigdecimal'
 gem "mutex_m"
+gem 'httparty'
+gem 'dotenv-rails', groups: [:development, :test]
 gem "sprockets-rails"
 gem "puma", ">= 5.0"
 gem "importmap-rails"

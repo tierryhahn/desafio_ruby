@@ -14,8 +14,8 @@ class User
   field :encrypted_password, type: String
 
   validates :email, presence: true
-  validates :password, presence: true
-  
+  validates :password, presence: true, on: :create
+
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable
 
   def generate_otp_secret

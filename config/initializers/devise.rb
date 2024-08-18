@@ -3,7 +3,6 @@ Devise.setup do |config|
   
   require 'devise/orm/mongoid'
 
-  # Configurações padrão
   config.case_insensitive_keys = [:email]
   config.strip_whitespace_keys = [:email]
   config.skip_session_storage = [:http_auth]

@@ -17,51 +17,29 @@ class AutomationsController < ApplicationController
   
     email = params[:email]
     otp_token = params[:otp_token]
-    #Mexer no linkedin message, já que está estourando erro de ID's inválidos, sendo que estou puxando pelo list attendees os ids corretos dos chats.
-    #Testar fazer uma rota listando chats existentes para mandar mensagem em conversa existente
+  
     unless current_user.email == email && current_user.verify_otp(otp_token)
       render json: { errors: 'Autenticação falhou' }, status: :unauthorized
       return
     end
   
     begin
-      attendees_response = unipile_service.list_attendees
-      valid_ids = attendees_response.dig('data', 'attendees')&.map { |attendee| attendee['id'] } || []
-      attendees_ids = params[:attendees_ids].uniq
-  
-      invalid_ids = attendees_ids - valid_ids
-  
-      if invalid_ids.any?
-        render json: { errors: "Invalid recipient IDs: #{invalid_ids.join(', ')}" }, status: :unprocessable_entity
-        return
-      end
-  
       result = unipile_service.send_linkedin_message(
         params[:account_id],
         params[:text],
-        attendees_ids,
+        params[:attendees_ids],
         params[:subject]
       )
       render json: { message: 'Mensagem enviada com sucesso', data: result }, status: :ok
     rescue => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end
-  end
-
-  def list_attendees
-    unipile_service = UnipileService.new(current_user)
-
-    begin
-      result = unipile_service.list_attendees
-      render json: { message: 'Lista de attendees recuperada com sucesso', data: result }, status: :ok
-    rescue => e
-      render json: { errors: e.message }, status: :unprocessable_entity
-    end
-  end
+  end  
 
   def send_email
     unipile_service = UnipileService.new(current_user)
   
+    # Incluindo autenticação
     email = params[:email]
     otp_token = params[:otp_token]
   
@@ -87,7 +65,7 @@ class AutomationsController < ApplicationController
       bcc = params[:bcc] || []
       subject = params[:subject]
       body = params[:body]
-      reply_to = params[:reply_to]
+      reply_to = params[:reply_to] # Deve ser uma string ou pode ser omitido se não necessário
       custom_headers = params[:custom_headers] || []
       tracking_options = params[:tracking_options] || {}
       attachments = params[:attachments] || []

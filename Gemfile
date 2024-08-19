@@ -8,6 +8,8 @@ gem 'bigdecimal'
 gem "mutex_m"
 gem 'httparty'
 gem 'dotenv-rails', groups: [:development, :test]
+gem 'sidekiq'
+gem 'sidekiq-scheduler'
 gem "sprockets-rails"
 gem "puma", ">= 5.0"
 gem "importmap-rails"

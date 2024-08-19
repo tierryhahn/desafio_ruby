@@ -17,33 +17,41 @@ class AutomationsController < ApplicationController
   
     email = params[:email]
     otp_token = params[:otp_token]
-    #Mexer no linkedin message, já que está estourando erro de ID's inválidos, sendo que estou puxando pelo list attendees os ids corretos dos chats.
-    #Testar fazer uma rota listando chats existentes para mandar mensagem em conversa existente
     unless current_user.email == email && current_user.verify_otp(otp_token)
       render json: { errors: 'Autenticação falhou' }, status: :unauthorized
       return
     end
   
     begin
-      attendees_response = unipile_service.list_attendees
-      valid_ids = attendees_response.dig('data', 'attendees')&.map { |attendee| attendee['id'] } || []
-      attendees_ids = params[:attendees_ids].uniq
+      chats_response = unipile_service.list_chats
+      valid_attendees_ids = chats_response.fetch('data', []).map { |chat| chat['attendee_provider_id'] }.compact
   
-      invalid_ids = attendees_ids - valid_ids
+      puts "Valid attendees IDs: #{valid_attendees_ids}"
+  
+      if valid_attendees_ids.empty?
+        render json: { errors: 'No valid attendees found' }, status: :unprocessable_entity
+        return
+      end
+  
+      attendees_ids = params[:attendees_ids].map(&:strip).uniq
+      invalid_ids = attendees_ids - valid_attendees_ids
   
       if invalid_ids.any?
         render json: { errors: "Invalid recipient IDs: #{invalid_ids.join(', ')}" }, status: :unprocessable_entity
         return
       end
   
-      result = unipile_service.send_linkedin_message(
+      result = unipile_service.start_linkedin_chat(
         params[:account_id],
         params[:text],
         attendees_ids,
-        params[:subject]
+        params[:subject],
+        params[:voice_message],
+        params[:attachments] || []
       )
       render json: { message: 'Mensagem enviada com sucesso', data: result }, status: :ok
     rescue => e
+      puts e.backtrace.join("\n")
       render json: { errors: e.message }, status: :unprocessable_entity
     end
   end
@@ -54,6 +62,17 @@ class AutomationsController < ApplicationController
     begin
       result = unipile_service.list_attendees
       render json: { message: 'Lista de attendees recuperada com sucesso', data: result }, status: :ok
+    rescue => e
+      render json: { errors: e.message }, status: :unprocessable_entity
+    end
+  end
+
+  def list_chats
+    unipile_service = UnipileService.new(current_user)
+
+    begin
+      result = unipile_service.list_chats
+      render json: { message: 'Lista de chats recuperada com sucesso', data: result }, status: :ok
     rescue => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end

@@ -38,26 +38,30 @@ class UnipileService
     JSON.parse(response.body)
   end
 
-  def send_linkedin_message(account_id, text, attendees_ids, subject = nil, voice_message = nil)
+  def start_linkedin_chat(account_id, text, attendees_ids, subject = nil, voice_message = nil, attachments = [])
     uri = URI("#{API_BASE_URL}/chats")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-
+  
     request = Net::HTTP::Post.new(uri.request_uri)
     request["Accept"] = "application/json"
     request["Content-Type"] = "application/json"
     request["X-API-KEY"] = "Fy+jNMsR.oPh59qIU9ukBmH6QROHfYjntPKkmB0e4xnPe9X4cqB8="
-
+  
     body = {
       account_id: account_id,
       text: text,
-      attendees_ids: attendees_ids
-    }
-    body[:subject] = subject if subject
-    body[:voice_message] = voice_message if voice_message
-
+      attendees_ids: attendees_ids,
+      subject: subject,
+      voice_message: voice_message,
+      attachments: attachments,
+      linkedin: {
+        inmail: true,
+        api: true
+      }
+    }.compact
+  
     request.body = body.to_json
-
     response = http.request(request)
     JSON.parse(response.body)
   end
@@ -98,6 +102,32 @@ class UnipileService
     request = Net::HTTP::Get.new(uri.request_uri)
     request["Accept"] = "application/json"
     request["X-API-KEY"] = "Fy+jNMsR.oPh59qIU9ukBmH6QROHfYjntPKkmB0e4xnPe9X4cqB8="
+
+    response = http.request(request)
+    JSON.parse(response.body)
+  end
+
+  def list_chats
+    uri = URI("#{API_BASE_URL}/chats")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request["Accept"] = "application/json"
+    request["X-API-KEY"] = "Fy+jNMsR.oPh59qIU9ukBmH6QROHfYjntPKkmB0e4xnPe9X4cqB8="
+
+    response = http.request(request)
+    JSON.parse(response.body)
+  end
+
+  def create_linkedin_connections(cursor, limit, account_id)
+    uri = URI("#{API_BASE_URL}/users/relations?cursor=#{cursor}&limit=#{limit}&account_id=#{account_id}")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request["Accept"] = "application/json"
+    request["X-API-KEY"] = ENV['UNIPILE_API_KEY']
 
     response = http.request(request)
     JSON.parse(response.body)

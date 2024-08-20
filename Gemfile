@@ -9,7 +9,8 @@ gem "mutex_m"
 gem 'httparty'
 gem 'dotenv-rails', groups: [:development, :test]
 gem 'sidekiq'
-gem 'sidekiq-scheduler'
+gem 'sidekiq-scheduler', '~> 5.0'
+gem 'redis'
 gem "sprockets-rails"
 gem "puma", ">= 5.0"
 gem "importmap-rails"
@@ -25,6 +26,9 @@ group :development, :test do
   gem "brakeman", require: false
 
   gem "rubocop-rails-omakase", require: false
+  
+  gem 'rspec-rails'
+  gem 'webmock'
 end
 
 group :development do
@@ -34,4 +38,6 @@ end
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
+  gem 'factory_bot_rails'
+  gem 'faker'
 end

@@ -1,6 +1,3 @@
-yaml
 :concurrency: 5
-:schedule:
-  unipile_automation:
-    cron: "0 * * * *"
-    class: "UnipileAutomationJob"
+:queues:
+  - default

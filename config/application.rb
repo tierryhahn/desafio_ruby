@@ -23,6 +23,7 @@ module MyProject
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
 
+    config.active_job.queue_adapter = :sidekiq
     # Add to the autoload paths any directories you want to include.
     # config.autoload_paths += %W(#{config.root}/lib)
 

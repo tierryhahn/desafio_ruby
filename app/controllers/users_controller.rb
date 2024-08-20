@@ -22,40 +22,36 @@ class UsersController < ApplicationController
   end
 
   def sign_in_with_otp
-    user = User.find_by(email: params[:email])
-    logger.debug "User found: #{user.inspect}"
-
-    if user
-      logger.debug "OTP provided: #{params[:otp_token]}"
-
-      if user.verify_otp(params[:otp_token])
-        render json: { message: 'Login bem-sucedido' }, status: :ok
-      else
-        logger.debug "OTP verification failed for user: #{user.email}"
-        render json: { errors: 'OTP inválido' }, status: :unauthorized
-      end
-    else
+    user = User.where(email: params[:email]).first
+    if user.nil?
       logger.debug "Email not found: #{params[:email]}"
-      render json: { errors: 'Email não encontrado' }, status: :unauthorized
+      return render json: { errors: 'Email não encontrado' }, status: :unauthorized
+    end
+
+    if user.verify_otp(params[:otp_token])
+      render json: { message: 'Login bem-sucedido' }, status: :ok
+    else
+      logger.debug "OTP verification failed for user: #{user.email}"
+      render json: { errors: 'OTP inválido' }, status: :unauthorized
     end
   end
 
   def update_account_ids
-    user = User.find_by(email: params[:email])
+    user = User.where(email: params[:email]).first
+    if user.nil?
+      logger.debug "Email not found: #{params[:email]}"
+      return render json: { errors: 'Usuário não encontrado' }, status: :not_found
+    end
 
-    if user
-      user.assign_attributes(user_update_params)
+    user.assign_attributes(user_update_params)
 
-      if user.save(validate: false)
-        render json: { message: 'IDs atualizados com sucesso', user: user }, status: :ok
-      else
-        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
-      end
+    if user.save(validate: false)
+      render json: { message: 'IDs atualizados com sucesso', user: user }, status: :ok
     else
-      render json: { errors: 'Usuário não encontrado' }, status: :not_found
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
   end
-  
+
   private
 
   def user_params

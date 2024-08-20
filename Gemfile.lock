@@ -237,7 +237,7 @@ GEM
       railties (>= 5.2)
     rexml (3.3.5)
       strscan
-    rotp (2.1.2)
+    rotp (6.3.0)
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.2)
@@ -369,7 +369,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 6.1.0)
   redis
-  rotp (~> 2.0)
+  rotp (~> 6.3)
   rspec-rails
   rubocop-rails-omakase
   selenium-webdriver

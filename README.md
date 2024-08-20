@@ -282,15 +282,13 @@ UNIPILE_API_KEY="SUA_SECRET_API_KEY"
 
 ## Testes
 
-### Rodar Testes
-
 Para rodar os testes, use o comando:
 
 ```sh
 bundle exec rspec
 ```
 
-### Rodar a api
+## Rodar a api
 
 Para rodar a api, use o comando:
 

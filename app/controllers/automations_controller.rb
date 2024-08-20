@@ -1,5 +1,4 @@
 class AutomationsController < ApplicationController
-  # Protege apenas a rota `request_link` com a autenticação de email e OTP.
   before_action :authenticate_user, only: [:request_link]
 
   def request_link

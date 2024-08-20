@@ -1,7 +1,7 @@
 class UnipileService
   API_BASE_URL = "https://api6.unipile.com:13646/api/v1"
 
-  def initialize(user)
+  def initialize(user = nil)
     @user = user
   end
 
@@ -54,13 +54,29 @@ class UnipileService
       attendees_ids: attendees_ids,
       subject: subject,
       voice_message: voice_message,
-      attachments: attachments,
-      linkedin: {
-        inmail: true,
-        api: true
-      }
+      attachments: attachments
     }.compact
   
+    request.body = body.to_json
+    response = http.request(request)
+    JSON.parse(response.body)
+  end
+
+  def send_chat_message(chat_id, text, thread_id = nil)
+    uri = URI("#{API_BASE_URL}/chats/#{chat_id}/messages")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Post.new(uri.request_uri)
+    request["Accept"] = "application/json"
+    request["Content-Type"] = "application/json"
+    request["X-API-KEY"] = "Fy+jNMsR.oPh59qIU9ukBmH6QROHfYjntPKkmB0e4xnPe9X4cqB8="
+
+    body = {
+      text: text,
+      thread_id: thread_id
+    }.compact
+
     request.body = body.to_json
     response = http.request(request)
     JSON.parse(response.body)

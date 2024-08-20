@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   post 'automations/send_email', to: 'automations#send_email'
   get 'attendees', to: 'automations#list_attendees'
   get 'chats', to: 'automations#list_chats'
+  post 'chats/:chat_id/messages', to: 'automations#send_message'
 end

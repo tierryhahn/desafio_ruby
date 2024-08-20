@@ -1,5 +1,6 @@
 class AutomationsController < ApplicationController
-  before_action :authenticate_user
+  # Protege apenas a rota `request_link` com a autenticação de email e OTP.
+  before_action :authenticate_user, only: [:request_link]
 
   def request_link
     unipile_service = UnipileService.new(current_user)
@@ -15,31 +16,15 @@ class AutomationsController < ApplicationController
   def send_linkedin_message
     unipile_service = UnipileService.new(current_user)
   
-    email = params[:email]
-    otp_token = params[:otp_token]
-    unless current_user.email == email && current_user.verify_otp(otp_token)
-      render json: { errors: 'Autenticação falhou' }, status: :unauthorized
-      return
-    end
-  
     begin
       chats_response = unipile_service.list_chats
       valid_attendees_ids = chats_response.fetch('data', []).map { |chat| chat['attendee_provider_id'] }.compact
   
       puts "Valid attendees IDs: #{valid_attendees_ids}"
   
-      if valid_attendees_ids.empty?
-        render json: { errors: 'No valid attendees found' }, status: :unprocessable_entity
-        return
-      end
-  
       attendees_ids = params[:attendees_ids].map(&:strip).uniq
       invalid_ids = attendees_ids - valid_attendees_ids
   
-      if invalid_ids.any?
-        render json: { errors: "Invalid recipient IDs: #{invalid_ids.join(', ')}" }, status: :unprocessable_entity
-        return
-      end
   
       result = unipile_service.start_linkedin_chat(
         params[:account_id],
@@ -49,6 +34,7 @@ class AutomationsController < ApplicationController
         params[:voice_message],
         params[:attachments] || []
       )
+  
       render json: { message: 'Mensagem enviada com sucesso', data: result }, status: :ok
     rescue => e
       puts e.backtrace.join("\n")
@@ -57,8 +43,13 @@ class AutomationsController < ApplicationController
   end
 
   def list_attendees
-    unipile_service = UnipileService.new(current_user)
+    account_id = params[:account_id]
+    if account_id.blank?
+      render json: { errors: 'account_id é obrigatório' }, status: :unprocessable_entity
+      return
+    end
 
+    unipile_service = UnipileService.new
     begin
       result = unipile_service.list_attendees
       render json: { message: 'Lista de attendees recuperada com sucesso', data: result }, status: :ok
@@ -68,8 +59,13 @@ class AutomationsController < ApplicationController
   end
 
   def list_chats
-    unipile_service = UnipileService.new(current_user)
+    account_id = params[:account_id]
+    if account_id.blank?
+      render json: { errors: 'account_id é obrigatório' }, status: :unprocessable_entity
+      return
+    end
 
+    unipile_service = UnipileService.new
     begin
       result = unipile_service.list_chats
       render json: { message: 'Lista de chats recuperada com sucesso', data: result }, status: :ok
@@ -80,14 +76,6 @@ class AutomationsController < ApplicationController
 
   def send_email
     unipile_service = UnipileService.new(current_user)
-  
-    email = params[:email]
-    otp_token = params[:otp_token]
-  
-    unless current_user.email == email && current_user.verify_otp(otp_token)
-      render json: { errors: 'Autenticação falhou' }, status: :unauthorized
-      return
-    end
   
     begin
       from = {
@@ -125,6 +113,22 @@ class AutomationsController < ApplicationController
         attachments
       )
       render json: { message: 'Email enviado com sucesso', data: result }, status: :ok
+    rescue => e
+      render json: { errors: e.message }, status: :unprocessable_entity
+    end
+  end
+
+  def send_message
+    chat_id = params[:chat_id]
+    text = params[:text]
+    thread_id = params[:thread_id]
+
+    unipile_service = UnipileService.new(current_user)
+
+    begin
+      result = unipile_service.send_chat_message(chat_id, text, thread_id)
+
+      render json: { message: 'Mensagem enviada com sucesso', data: result }, status: :ok
     rescue => e
       render json: { errors: e.message }, status: :unprocessable_entity
     end

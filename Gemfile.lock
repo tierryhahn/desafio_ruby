@@ -155,11 +155,10 @@ GEM
     minitest (5.25.1)
     mongo (2.20.1)
       bson (>= 4.14.1, < 6.0.0)
-    mongoid (8.1.5)
+    mongoid (9.0.1)
       activemodel (>= 5.1, < 7.2, != 7.0.0)
       concurrent-ruby (>= 1.0.5, < 2.0)
       mongo (>= 2.18.0, < 3.0.0)
-      ruby2_keywords (~> 0.0.5)
     msgpack (1.7.2)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
@@ -285,7 +284,6 @@ GEM
       rubocop-performance
       rubocop-rails
     ruby-progressbar (1.13.0)
-    ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
     rufus-scheduler (3.9.1)
       fugit (~> 1.1, >= 1.1.6)
@@ -364,7 +362,7 @@ DEPENDENCIES
   httparty
   importmap-rails
   jbuilder
-  mongoid (~> 8.0)
+  mongoid (~> 9.0)
   mutex_m
   puma (>= 5.0)
   rails (~> 6.1.0)
